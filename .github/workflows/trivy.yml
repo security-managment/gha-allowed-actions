@@ -13,14 +13,12 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Cache Trivy DB
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ~/.cache/trivy
           key: ${{ runner.os }}-trivy-db
-
-      - name: Update Trivy DB
-        run: |
-          trivy --download-db-only
+          restore-keys: |
+            ${{ runner.os }}-trivy-db
 
       - name: Build an image from Dockerfile
         run: docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
