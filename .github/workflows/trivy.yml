@@ -19,7 +19,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      ## Cache the Trivy DB to avoid repeated downloads and reduce rate limiting
+      - name: Build Docker Image
+        run: docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
+
+      # Cache the Trivy DB to avoid repeated downloads and reduce rate limiting
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
@@ -28,15 +31,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-trivy-db
 
-      - name: Build Docker Image
-        run: docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
-
       - name: Run Trivy Scan
         run: |
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ~/.cache/trivy:/root/.cache/trivy \
-            my-trivy-image image docker.io/my-organization/my-app:${{ github.sha }} --format template --template @/contrib/sarif.tpl --output trivy-results.sarif --severity CRITICAL,HIGH
+            aquasecurity/trivy image docker.io/my-organization/my-app:${{ github.sha }} --format template --template @/contrib/sarif.tpl --output trivy-results.sarif --severity CRITICAL,HIGH
 
       - name: Upload Trivy Results
         uses: github/codeql-action/upload-sarif@v3
