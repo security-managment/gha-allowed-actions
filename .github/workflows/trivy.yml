@@ -39,7 +39,7 @@ jobs:
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ~/.cache/trivy:/root/.cache/trivy \
-            aquasecurity/trivy image docker.io/my-organization/my-app:${{ github.sha }} --format template --template @/contrib/sarif.tpl --output trivy-results.sarif --severity CRITICAL,HIGH
+            aquasecurity/trivy:0.57.0 image docker.io/my-organization/my-app:${{ github.sha }} --format template --template @/contrib/sarif.tpl --output trivy-results.sarif --severity CRITICAL,HIGH
 
       - name: Upload Trivy Results
         uses: github/codeql-action/upload-sarif@v3
