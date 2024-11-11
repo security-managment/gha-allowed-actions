@@ -19,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Cache the Trivy DB to avoid repeated downloads and reduce rate limiting
+      ## Cache the Trivy DB to avoid repeated downloads and reduce rate limiting
       - name: Cache Trivy DB
         uses: actions/cache@v3
         with:
