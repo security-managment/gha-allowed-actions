@@ -7,7 +7,7 @@ name: Trivy
 
 on:
   push:
-    branches: main
+    branches: [ $default-branch, $protected-branches ]
 
 permissions:
   contents: read
