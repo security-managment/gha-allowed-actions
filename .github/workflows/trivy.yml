@@ -1,47 +1,24 @@
-name: Trivy
-
+name: build
 on:
   push:
-    branches: main
-
-permissions:
-  contents: read
-
+    branches:
+      - main
+  pull_request:
 jobs:
   build:
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-
-    runs-on: ubuntu-latest
+    name: Build
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Docker Image
+        uses: actions/checkout@v3
+      - name: Build an image from Dockerfile
         run: docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
-
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      # Cache the Trivy DB to avoid repeated downloads and reduce rate limiting
-      - name: Cache Trivy DB
-        uses: actions/cache@v3
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          path: ~/.cache/trivy
-          key: ${{ runner.os }}-trivy-db
-          restore-keys: |
-            ${{ runner.os }}-trivy-db
-
-      - name: Run Trivy Scan
-        run: |
-          docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v ~/.cache/trivy:/root/.cache/trivy \
-            aquasecurity/trivy:0.57.0 image docker.io/my-organization/my-app:${{ github.sha }} --format template --template @/contrib/sarif.tpl --output trivy-results.sarif --severity CRITICAL,HIGH
-
-      - name: Upload Trivy Results
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'trivy-results.sarif'
+          image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
