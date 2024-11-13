@@ -1,4 +1,4 @@
-# Trivy workflow update
+# Trivy workflow
 name: build
 on:
   push:
