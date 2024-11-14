@@ -1,4 +1,3 @@
-# Trivy workflow title
 name: build
 on:
   push:
